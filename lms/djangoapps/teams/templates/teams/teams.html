@@ -39,7 +39,7 @@ from openedx.core.djangolib.js_utils import (
 
 <%include file="../discussion/_js_body_dependencies.html" />
 
-<%static:require_module module_name="teams/js/teams_tab_factory" class_name="TeamsTabFactory">
+<%static:webpack entry="TeamsTabFactory">
     TeamsTabFactory({
         courseID: '${six.text_type(course.id) | n, js_escaped_string}',
         topics: ${topics | n, dump_js_escaped_json},
@@ -63,7 +63,7 @@ from openedx.core.djangolib.js_utils import (
         countries: ${countries | n, dump_js_escaped_json},
         teamsBaseUrl: '${teams_base_url | n, js_escaped_string}'
     });
-</%static:require_module>
+</%static:webpack>
 </%block>
 
 <%include file="../discussion/_underscore_templates.html" />

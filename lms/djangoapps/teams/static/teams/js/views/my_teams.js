@@ -1,53 +1,53 @@
-(function(define) {
-    'use strict';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import gettext from 'gettext';
 
-    define(['underscore', 'backbone', 'gettext', 'teams/js/views/teams', 'edx-ui-toolkit/js/utils/html-utils'],
-        function(_, Backbone, gettext, TeamsView, HtmlUtils) {
-            var MyTeamsView = TeamsView.extend({
+import TeamsView from 'teams/js/views/teams';
+import HtmlUtils from 'edx-ui-toolkit/js/utils/html-utils';
 
-                initialize: function(options) {
-                    this.getTopic = options.getTopic;
-                    TeamsView.prototype.initialize.call(this, options);
-                },
+const MyTeamsView = TeamsView.extend({
 
-                render: function() {
-                    var view = this;
-                    if (this.collection.isStale) {
-                        this.$el.html('');
-                    }
-                    this.collection.refresh()
-                        .done(function() {
-                            TeamsView.prototype.render.call(view);
-                            if (view.collection.length === 0) {
-                                HtmlUtils.append(view.$el, gettext('You are not currently a member of any team.'));
-                            }
-                        });
-                    return this;
-                },
+    initialize: function(options) {
+        this.getTopic = options.getTopic;
+        TeamsView.prototype.initialize.call(this, options);
+    },
 
-                getTopic: function(topicId) {
-                    return this.getTopic(topicId);
-                },
-
-                createHeaderView: function() {
-                    // hide pagination when learner isn't a member of any teams
-                    if (!this.collection.length) {
-                        return null;
-                    } else {
-                        return TeamsView.prototype.createHeaderView.call(this);
-                    }
-                },
-
-                createFooterView: function() {
-                    // hide pagination when learner isn't a member of any teams
-                    if (!this.collection.length) {
-                        return null;
-                    } else {
-                        return TeamsView.prototype.createFooterView.call(this);
-                    }
+    render: function() {
+        var view = this;
+        if (this.collection.isStale) {
+            this.$el.html('');
+        }
+        this.collection.refresh()
+            .done(function() {
+                TeamsView.prototype.render.call(view);
+                if (view.collection.length === 0) {
+                    HtmlUtils.append(view.$el, gettext('You are not currently a member of any team.'));
                 }
             });
+        return this;
+    },
 
-            return MyTeamsView;
-        });
-}).call(this, define || RequireJS.define);
+    getTopic: function(topicId) {
+        return this.getTopic(topicId);
+    },
+
+    createHeaderView: function() {
+        // hide pagination when learner isn't a member of any teams
+        if (!this.collection.length) {
+            return null;
+        } else {
+            return TeamsView.prototype.createHeaderView.call(this);
+        }
+    },
+
+    createFooterView: function() {
+        // hide pagination when learner isn't a member of any teams
+        if (!this.collection.length) {
+            return null;
+        } else {
+            return TeamsView.prototype.createFooterView.call(this);
+        }
+    }
+});
+
+export default MyTeamsView;

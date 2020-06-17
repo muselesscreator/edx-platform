@@ -1,83 +1,83 @@
-(function(define) {
-    'use strict';
-    define([
-        'backbone',
-        'underscore',
-        'gettext',
-        'edx-ui-toolkit/js/utils/html-utils',
-        'common/js/components/utils/view_utils',
-        'teams/js/views/team_utils',
-        'text!teams/templates/manage.underscore'
-    ], function(Backbone, _, gettext, HtmlUtils, ViewUtils, TeamUtils, manageTemplate) {
-        var ManageView = Backbone.View.extend({
+import Backbone from 'backbone';
+import _ from 'underscore';
+import gettext from 'gettext';
 
-            srInfo: {
-                id: 'heading-manage',
-                text: gettext('Manage')
-            },
+import HtmlUtils from 'edx-ui-toolkit/js/utils/html-utils';
+import ViewUtils from 'common/js/components/utils/view_utils';
 
-            events: {
-                'click #download-team-csv': 'downloadCsv',
-                'change #upload-team-csv-input': 'setTeamMembershipCsv',
-                'click #upload-team-csv': ViewUtils.withDisabledElement('uploadCsv')
-            },
+import TeamModel from 'teams/js/models/team';
 
-            initialize: function(options) {
-                this.teamEvents = options.teamEvents;
-                this.csvUploadUrl = options.teamMembershipManagementUrl;
-                this.csvDownloadUrl = options.teamMembershipManagementUrl;
-            },
+import dateTemplate from 'teams/templates/date.underscore';
+import manageTemplate from 'teams/templates/manage.underscore';
+import editTeamMemberTemplate from 'teams/templates/edit-team-member.underscore';
 
-            render: function() {
-                HtmlUtils.setHtml(
-                    this.$el,
-                    HtmlUtils.template(manageTemplate)({})
-                );
-                return this;
-            },
+const ManageView = Backbone.View.extend({
+    srInfo: {
+        id: 'heading-manage',
+        text: gettext('Manage')
+    },
 
-            downloadCsv: function() {
-                window.location.href = this.csvDownloadUrl;
-            },
+    events: {
+        'click #download-team-csv': 'downloadCsv',
+        'change #upload-team-csv-input': 'setTeamMembershipCsv',
+        'click #upload-team-csv': ViewUtils.withDisabledElement('uploadCsv')
+    },
 
-            setTeamMembershipCsv: function(event) {
-                this.membershipFile = event.target.files[0];
+    initialize: function(options) {
+        this.teamEvents = options.teamEvents;
+        this.csvUploadUrl = options.teamMembershipManagementUrl;
+        this.csvDownloadUrl = options.teamMembershipManagementUrl;
+    },
 
-                // enable the upload button when a file is selected
-                if (this.membershipFile) {
-                    $('#upload-team-csv').removeClass('is-disabled').attr('aria-disabled', false);
-                } else {
-                    $('#upload-team-csv').addClass('is-disabled').attr('aria-disabled', true);
-                }
-            },
+    render: function() {
+        HtmlUtils.setHtml(
+            this.$el,
+            HtmlUtils.template(manageTemplate)({})
+        );
+        return this;
+    },
 
-            uploadCsv: function() {
-                var formData = new FormData();
-                formData.append('csv', this.membershipFile);  // xss-lint: disable=javascript-jquery-append
+    downloadCsv: function() {
+        window.location.href = this.csvDownloadUrl;
+    },
 
-                return $.ajax({
-                    type: 'POST',
-                    url: this.csvUploadUrl,
-                    data: formData,
-                    processData: false,  // tell jQuery not to process the data
-                    contentType: false   // tell jQuery not to set contentType
-                }).done(
-                    this.handleCsvUploadSuccess
-                ).fail(
-                    this.handleCsvUploadFailure
-                );
-            },
+    setTeamMembershipCsv: function(event) {
+        this.membershipFile = event.target.files[0];
 
-            handleCsvUploadSuccess: function(data) {
-                TeamUtils.showInfoBanner(data.message, false);
+        // enable the upload button when a file is selected
+        if (this.membershipFile) {
+            $('#upload-team-csv').removeClass('is-disabled').attr('aria-disabled', false);
+        } else {
+            $('#upload-team-csv').addClass('is-disabled').attr('aria-disabled', true);
+        }
+    },
 
-                // Implement a teams:update event (TODO MST-44)
-            },
+    uploadCsv: function() {
+        var formData = new FormData();
+        formData.append('csv', this.membershipFile);  // xss-lint: disable=javascript-jquery-append
 
-            handleCsvUploadFailure: function(jqXHR) {
-                TeamUtils.showInfoBanner(jqXHR.responseJSON.errors, true);
-            }
-        });
-        return ManageView;
-    });
-}).call(this, define || RequireJS.define);
+        return $.ajax({
+            type: 'POST',
+            url: this.csvUploadUrl,
+            data: formData,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
+        }).done(
+            this.handleCsvUploadSuccess
+        ).fail(
+            this.handleCsvUploadFailure
+        );
+    },
+
+    handleCsvUploadSuccess: function(data) {
+        TeamUtils.showInfoBanner(data.message, false);
+
+        // Implement a teams:update event (TODO MST-44)
+    },
+
+    handleCsvUploadFailure: function(jqXHR) {
+        TeamUtils.showInfoBanner(jqXHR.responseJSON.errors, true);
+    }
+});
+
+export default ManageView;

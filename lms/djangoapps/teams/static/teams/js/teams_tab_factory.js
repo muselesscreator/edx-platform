@@ -1,14 +1,13 @@
-(function(define) {
-    'use strict';
-    define(['jquery', 'teams/js/views/teams_tab'],
-        function($, TeamsTabView) {
-            return function(options) {
-                var teamsTab = new TeamsTabView({
-                    el: $('.teams-content'),
-                    context: options,
-                    viewLabel: gettext('Teams')
-                });
-                teamsTab.start();
-            };
-        });
-}).call(this, define || RequireJS.define);
+import $ from 'jquery';
+import TeamsTabView from 'teams/js/views/teams_tab';
+
+const TeamsTabFactory = (options) => {
+  const teamsTab = new TeamsTabView({
+      el: $('.teams-content'),
+      context: options,
+      viewLabel: gettext('Teams')
+  });
+  teamsTab.start();
+};
+
+export { TeamsTabFactory }; // eslint-disable-line import/prefer-default-export
