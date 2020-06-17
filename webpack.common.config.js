@@ -101,6 +101,9 @@ module.exports = Merge.smart({
             UnenrollmentFactory: './lms/static/js/learner_dashboard/unenrollment_factory.js',
             CompletionOnViewService: './lms/static/completion/js/CompletionOnViewService.js',
 
+            // Teams
+            TeamsTabFactory: './lms/djangoapps/teams/static/teams/js/teams_tab_factory.js',
+
             // Features
             CourseGoals: './openedx/features/course_experience/static/course_experience/js/CourseGoals.js',
             CourseHome: './openedx/features/course_experience/static/course_experience/js/CourseHome.js',
@@ -365,6 +368,7 @@ module.exports = Merge.smart({
                 'jquery.smoothScroll': 'jquery.smooth-scroll.min',
                 'jquery.timepicker': 'timepicker/jquery.timepicker',
                 'backbone.associations': 'backbone-associations/backbone-associations-min',
+                'backbone-super': 'js/vendor/backbone-super',
                 squire: 'Squire',
                 tinymce: 'tinymce.full.min',
 
