@@ -1,10 +1,11 @@
 define([
     'backbone',
     'underscore',
+    'edx-ui-toolkit/js/utils/spec-helpers/ajax-helpers',
     'teams/js/collections/team',
     'teams/js/collections/topic',
     'teams/js/models/topic'
-], function(Backbone, _, TeamCollection, TopicCollection, TopicModel) {
+], function(Backbone, _, AjaxHelpers, TeamCollection, TopicCollection, TopicModel) {
     'use strict';
     var createMockPostResponse, createMockDiscussionResponse, createAnnotatedContentInfo, createMockThreadResponse,
         createMockTopicData, createMockTopicCollection, createMockTopic, createMockInstructorManagedTopic,
@@ -328,6 +329,22 @@ define([
         );
     };
 
+    var verifyTeamsetTeamsRequest = function(requests) {
+        AjaxHelpers.expectRequestURL(
+            requests,
+            testContext.teamMembershipsUrl,
+            {
+                username: testUser,
+                course_id: testCourseID,
+                teamset_id: testTopicID,
+            }
+        );
+        AjaxHelpers.respondWithJson(
+            requests,
+            createMockTeamsResponse({ results: [] })
+        );
+    };
+
     return {
         teamEvents: teamEvents,
         testCourseID: testCourseID,
@@ -352,6 +369,7 @@ define([
         createMockTopicData: createMockTopicData,
         createMockTopicCollection: createMockTopicCollection,
         triggerTeamEvent: triggerTeamEvent,
-        verifyCards: verifyCards
+        verifyCards: verifyCards,
+        verifyTeamsetTeamsRequest: verifyTeamsetTeamsRequest
     };
 });

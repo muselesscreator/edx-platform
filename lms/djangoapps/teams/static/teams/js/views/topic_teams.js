@@ -10,7 +10,6 @@
         'text!teams/templates/team-actions.underscore',
         'teams/js/views/team_utils'
     ], function(_, Backbone, gettext, HtmlUtils, TeamsView, PagingHeader, teamActionsTemplate, TeamUtils) {
-
         // Translators: this string is shown at the bottom of the teams page
         // to find a team to join or else to create a new one. There are three
         // links that need to be included in the message:
@@ -48,8 +47,19 @@
                 TeamsView.prototype.initialize.call(this, options);
             },
 
-            tryShowActions: function() {
-                return $.ajax({
+            checkIfUserCanCreateTeam: function() {
+                var deferred = $.Deferred();
+                // Note: non-staff and non-privileged users are automatically added to any team
+                // that they create. This means that if multiple team membership is
+                // disabled that they cannot create a new team when they already
+                // belong to one.
+                if (this.context.userInfo.staff || this.context.userInfo.privileged) {
+                    deferred.resolve(true);
+                }
+                if (TeamUtils.isInstructorManagedTopic(this.model.attributes.type)) {
+                    deferred.resolve(false);
+                }
+                $.ajax({
                     type: 'GET',
                     url: this.context.teamMembershipsUrl,
                     data: {
@@ -58,26 +68,16 @@
                         teamset_id: this.model.get('id'),
                     },
                     success: _.bind(function(data) {
-                        this.showActions();
-                    }, this)
+                        deferred.resolve(data.count === 0);
+                    }, this),
+                    error: function() {
+                      deferred.resolve(false);
+                    },
                 });
+                return deferred.promise();
             },
 
-            canUserCreateTeam: function() {
-                // Note: non-staff and non-privileged users are automatically added to any team
-                // that they create. This means that if multiple team membership is
-                // disabled that they cannot create a new team when they already
-                // belong to one.
-                if (this.context.userInfo.staff || this.context.userInfo.privileged) {
-                    return true;
-                }
-                if (TeamUtils.isInstructorManagedTopic(this.model.attributes.type)) {
-                    return false;
-                }
-            },
-
-
-            showActions: function() {
+            showActions: function(shouldShow) {
                 HtmlUtils.append(
                     this.$el,
                     HtmlUtils.template(teamActionsTemplate)({message: message})
@@ -85,11 +85,14 @@
             },
 
             render: function() {
+                this.test = 'value';
                 this.collection.refresh().done(_.bind(function() {
                     TeamsView.prototype.render.call(this);
-                    if (this.canUserCreateTeam()) {
-                        this.tryShowActions();
-                    }
+                    this.checkIfUserCanCreateTeam().done(_.bind(function(canCreate) {
+                        if (canCreate) {
+                            this.showActions();
+                        }
+                    }, this));
                 }, this));
                 return this;
             },

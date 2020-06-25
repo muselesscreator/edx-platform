@@ -294,15 +294,6 @@ define([
 
         describe('Search', function() {
             var teamsTabView;
-            beforeEach(function() {
-                teamsTabView = createTeamsTabView();
-                teamsTabView.browseTopic(TeamSpecHelpers.testTopicID);
-                verifyTeamsRequest({
-                    order_by: 'last_activity_at',
-                    text_search: ''
-                });
-                AjaxHelpers.respondWithJson(requests, {});
-            });
 
             var performSearch = function() {
                 teamsTabView.$('.search-field').val('foo');
@@ -311,11 +302,30 @@ define([
                     order_by: '',
                     text_search: 'foo'
                 });
-                AjaxHelpers.respondWithJson(requests, TeamSpecHelpers.createMockTeamsResponse({results: []}));
+                AjaxHelpers.respondWithJson(
+                    requests,
+                    TeamSpecHelpers.createMockTeamsResponse({results: []})
+                );
+
+                // verify teamset request from topic_teams
+                TeamSpecHelpers.verifyTeamsetTeamsRequest();
 
                 // Expect exactly one search request to be fired
                 AjaxHelpers.expectNoRequests(requests);
             };
+
+            beforeEach(function() {
+                teamsTabView = createTeamsTabView();
+                teamsTabView.browseTopic(TeamSpecHelpers.testTopicID);
+                verifyTeamsRequest({
+                    order_by: 'last_activity_at',
+                    text_search: ''
+                });
+                AjaxHelpers.respondWithJson(requests, {});
+
+                // verify teamset request from topic_teams
+                TeamSpecHelpers.verifyTeamsetTeamsRequest();
+            });
 
             it('can search teams', function() {
                 performSearch();
@@ -359,6 +369,7 @@ define([
                 // Perform a search but respond with a 500
                 teamsTabView.$('.search-field').val('foo');
                 teamsTabView.$('.action-search').click();
+                TeamSpecHelpers.verifyTeamsetTeamsRequest();
                 AjaxHelpers.respondWithError(requests);
 
                 // Verify that the team list is still shown

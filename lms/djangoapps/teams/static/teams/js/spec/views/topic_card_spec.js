@@ -1,11 +1,17 @@
 define(['jquery',
     'underscore',
+    'sinon',
+    'edx-ui-toolkit/js/utils/spec-helpers/ajax-helpers',
+    'common/js/spec_helpers/page_helpers',
+    'teams/js/spec_helpers/team_spec_helpers',
     'teams/js/views/topic_card',
+    'teams/js/views/topic_teams',
     'teams/js/models/topic'],
-    function($, _, TopicCardView, Topic) {
+    function($, _, sinon, AjaxHelpers, PageHelpers, TeamSpecHelpers, TopicCardView, TopicTeamsView, Topic) {
         'use strict';
 
         describe('Topic card view', function() {
+            var topicTeamsView;
             var createTopicCardView = function() {
                 return new TopicCardView({
                     model: new Topic({
@@ -20,6 +26,11 @@ define(['jquery',
 
             beforeEach(function() {
                 spyOn(TopicCardView.prototype, 'action');
+                PageHelpers.preventBackboneChangingUrl();
+            });
+
+            afterEach(function() {
+                Backbone.history.stop();
             });
 
             it('can render itself', function() {
@@ -32,6 +43,7 @@ define(['jquery',
             });
 
             it('navigates when action button is clicked', function() {
+                var requests = AjaxHelpers.requests();
                 var view = createTopicCardView();
                 view.$el.find('.action').trigger('click');
                 // TODO test actual navigation once implemented
